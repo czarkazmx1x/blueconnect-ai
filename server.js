@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
-import BlueLinky from 'bluelinky';
+import { BlueLinky } from 'bluelinky';
 
 const app = express();
 // Use the system port if available, otherwise 3001
