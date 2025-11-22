@@ -122,9 +122,20 @@ app.post('/api/vehicles/:vin/status', async (req, res) => {
   console.log(`Fetching status for ${vin} (Refresh: ${refresh})...`);
 
   try {
-    // calls vehicle.status({ refresh: true/false })
-    const statusRaw = await vehicle.status({ refresh: !!refresh });
+    // Always force refresh for now - cached status seems to return undefined
+    // This makes the first request slower but ensures we get data
+    console.log('Calling vehicle.status with refresh=true...');
+    const statusRaw = await vehicle.status({ refresh: true });
     console.log('Raw status response:', JSON.stringify(statusRaw, null, 2));
+
+    if (!statusRaw) {
+      console.error('BlueLinky returned undefined for status');
+      return res.status(500).json({
+        error: 'Vehicle did not return status data',
+        hint: 'Your vehicle may not support remote status queries, or BlueLink remote features may not be activated on your account'
+      });
+    }
+
     const formatted = mapToAppStatus(statusRaw);
     res.json(formatted);
   } catch (error) {
