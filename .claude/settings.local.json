@@ -15,7 +15,9 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(gh repo create:*)",
-      "Bash(git init:*)"
+      "Bash(git init:*)",
+      "Bash(vercel --version:*)",
+      "Bash(vercel:*)"
     ],
     "deny": [],
     "ask": []
