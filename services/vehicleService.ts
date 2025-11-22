@@ -2,12 +2,16 @@ import { Vehicle as VehicleData, VehicleStatus, LocationData } from '../types';
 
 // Safely handle import.meta.env for both Vite and raw browser environments
 const getBaseUrl = () => {
-  const meta = import.meta as any;
-  // Check if env exists before accessing properties to avoid undefined error
-  if (meta && meta.env && meta.env.VITE_API_URL) {
-    return meta.env.VITE_API_URL;
+  // Vite exposes env vars through import.meta.env
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
   }
-  return 'http://localhost:3001/api';
+  // Fallback for development
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    return 'http://localhost:3001/api';
+  }
+  // Production fallback
+  return 'https://blueconnect-backend.onrender.com/api';
 };
 
 const API_BASE_URL = getBaseUrl();
