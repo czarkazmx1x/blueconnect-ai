@@ -1,0 +1,7 @@
+{
+  "name": "BlueConnect AI",
+  "description": "A modern, AI-enhanced dashboard for remote vehicle management inspired by Bluelinky. Monitor status, control locks, and locate your vehicle.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
