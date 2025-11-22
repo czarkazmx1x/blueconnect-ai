@@ -20,6 +20,11 @@ const vehicleCache = new Map();
 const mapToAppStatus = (raw) => {
   // The structure of 'raw' depends on the specific vehicle and bluelinky version.
   // This mapping attempts to normalize common fields.
+  if (!raw) {
+    console.error('mapToAppStatus received null/undefined raw data');
+    throw new Error('No status data received from vehicle');
+  }
+
   const s = raw.vehicleStatus || raw;
 
   // Helper for door status (0 is usually closed, 1 is open)
@@ -28,7 +33,7 @@ const mapToAppStatus = (raw) => {
   return {
     engine: s.engine ? 'ON' : 'OFF',
     doors: {
-      locked: s.doorLock,
+      locked: s.doorLock || false,
       hoodOpen: isOpen(s.doorOpen?.hood),
       trunkOpen: isOpen(s.doorOpen?.trunk),
       frontLeftOpen: isOpen(s.doorOpen?.frontLeft),
@@ -37,20 +42,20 @@ const mapToAppStatus = (raw) => {
       backRightOpen: isOpen(s.doorOpen?.backRight),
     },
     climate: {
-      active: s.airCtrlOn,
+      active: s.airCtrlOn || false,
       temperature: s.airTemp?.value || 72,
-      defrost: s.defrost,
+      defrost: s.defrost || false,
     },
     battery: {
       percentage: s.evStatus?.batteryStatus || 0,
       range: s.evStatus?.drvDistance?.[0]?.rangeByFuel?.evModeRange?.value || 0,
-      charging: s.evStatus?.batteryCharge,
+      charging: s.evStatus?.batteryCharge || false,
     },
     fuel: {
-      level: s.fuelLevel,
+      level: s.fuelLevel || 0,
       range: s.dte?.value || 0,
     },
-    odometer: s.odometer,
+    odometer: s.odometer || 0,
     lastUpdated: new Date().toISOString(),
   };
 };
@@ -119,11 +124,13 @@ app.post('/api/vehicles/:vin/status', async (req, res) => {
   try {
     // calls vehicle.status({ refresh: true/false })
     const statusRaw = await vehicle.status({ refresh: !!refresh });
+    console.log('Raw status response:', JSON.stringify(statusRaw, null, 2));
     const formatted = mapToAppStatus(statusRaw);
     res.json(formatted);
   } catch (error) {
     console.error('Status fetch error:', error);
-    res.status(500).json({ error: error.message });
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ error: error.message, details: error.stack });
   }
 });
 
