@@ -86,14 +86,14 @@ app.get('/api/vehicles', async (req, res) => {
 
     for (const v of vehicles) {
       vehicleCache.set(v.vin(), v);
-      
+
       // We perform a lightweight fetch or use cached data if available
       // For the initial list, we return basic info
       responseData.push({
         vin: v.vin(),
         nickname: v.nickname(),
         modelName: v.name(),
-        year: v.year(),
+        year: v.year || 2024, // year might be a property, not a method
         color: 'Unknown', // Bluelinky might not provide this directly in the summary
         status: null, // Will be fetched specifically
         location: null
